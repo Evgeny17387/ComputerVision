@@ -16,36 +16,6 @@ SIN_30 = math.sin(math.pi / 6)
 TRIANGLE_ANGLES = 120
 
 
-def plot_graphs():
-
-    plt.subplot(141)
-    plt.imshow(image, cmap='gray')
-    plt.title('Image')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(142)
-    plt.imshow(edges, cmap='gray')
-    plt.title('Edge - Canny')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(143)
-    plt.imshow(gradient * binary_mask, cmap='gray')
-    plt.title('Gradient')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(144)
-    plt.imshow(gradient_direction * binary_mask, cmap='gray')
-    plt.title('Gradient Direction')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.get_current_fig_manager().window.state('zoomed')
-    plt.show()
-
-
 def hough_transfom():
 
     # given the canny image, we do the following:
@@ -97,14 +67,38 @@ def hough_transfom():
 
     triangle = np.array([[x1, y1], [x2, y2], [x3, y3]])
 
-    plt.subplot(121)
+    plt.subplot(161)
     plt.imshow(image, cmap='gray')
     plt.title('Image')
     plt.xticks([])
     plt.yticks([])
+
+    plt.subplot(162)
+    plt.imshow(image, cmap='gray')
+    plt.title('Triangle Detection')
+    plt.xticks([])
+    plt.yticks([])
     plt.gca().add_patch(plt.Polygon(triangle, facecolor="none", edgecolor='blue'))
 
-    plt.subplot(122)
+    plt.subplot(163)
+    plt.imshow(edges, cmap='gray')
+    plt.title('Edge - Canny')
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.subplot(164)
+    plt.imshow(gradient * binary_mask, cmap='gray')
+    plt.title('Gradient')
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.subplot(165)
+    plt.imshow(gradient_direction * binary_mask, cmap='gray')
+    plt.title('Gradient Direction')
+    plt.xticks([])
+    plt.yticks([])
+
+    plt.subplot(166)
     plt.imshow(possible_triangles[:, :, triangle_angel], cmap='gray')
     plt.title(f'Hough Transform\nAngle: {triangle_angel}')
     plt.xticks([])
@@ -117,8 +111,8 @@ def hough_transfom():
 if __name__ == '__main__':
 
     # image_name = 'test_1.jpg'
-    # image_name = 'test_2.jpg'
-    image_name = 'test_3.jpg'
+    image_name = 'test_2.jpg'
+    # image_name = 'test_3.jpg'
     edge_length = 180
 
     threshold_1 = 100
@@ -144,5 +138,4 @@ if __name__ == '__main__':
 
     gradient_direction = np.int16(np.arctan2(dy, dx) * 180 / math.pi)
 
-    # plot_graphs()
     hough_transfom()
