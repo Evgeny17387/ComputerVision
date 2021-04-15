@@ -44,37 +44,12 @@ def plot_graphs():
     plt.show()
 
 
-def calculate_angles():
-
-    angles = dict()
-    for x in range(gradient_direction.shape[0]):
-        for y in range(gradient_direction.shape[1]):
-
-            if binary_mask[x, y] == 0:
-                continue
-
-            angle = gradient_direction[x, y]
-
-            if angle in angles:
-                angles[angle] += 1
-            else:
-                angles[angle] = 1
-
-    print({k: v for k, v in sorted(angles.items(), key=lambda item: item[1], reverse=True)})
-
-    plt.scatter(angles.keys(), angles.values())
-
-    plt.get_current_fig_manager().window.state('zoomed')
-    plt.show()
-
-
 def hough_transfom():
 
     # given the canny image, we do the following:
     # 1. iterate over all points of edge image
-    # 2. assume triangle angle theta = 0
-    # 3. check all 3 possible edges
-    # 4. given the triangle edge lenght, iterate over all possible triangles centers given the image point
+    # 2. edge angle is accordingly to graident direction
+    # 3. given the triangle edge length, iterate over all possible triangles centers given the image point
 
     possible_triangles = np.zeros((image_length_y, image_length_x))
 
@@ -88,22 +63,18 @@ def hough_transfom():
 
                 # Horizontal edge
 
-                center_y = int(y + edge_to_center)
-                center_x = int(x + i)
-                if not ((center_x < 0) or (center_x >= image_length_x) or (center_y < 0) or (center_y >= image_length_y)):
-                    possible_triangles[center_y, center_x] += 1
+                direction = gradient_direction[y, x]
 
-                # left edge
+                cos_direction_normal = math.cos(direction * math.pi / 180)
+                sin_direction_normal = math.sin(direction * math.pi / 180)
 
-                center_y = int(y + i * COS_30 - edge_to_center * COS_60)
-                center_x = int(x + i * SIN_30 + edge_to_center * SIN_60)
-                if not ((center_x < 0) or (center_x >= image_length_x) or (center_y < 0) or (center_y >= image_length_y)):
-                    possible_triangles[center_y, center_x] += 1
+                cos_direction_edge = math.cos((direction + 90) * math.pi / 180)
+                sin_direction_edge = math.sin((direction + 90) * math.pi / 180)
 
-                # right edge
+                center_y = int(y + i * sin_direction_edge + edge_to_center * sin_direction_normal)
 
-                center_y = int(y + i * COS_30 - edge_to_center * COS_60)
-                center_x = int(x - i * SIN_30 - edge_to_center * SIN_60)
+                center_x = int(x + i * cos_direction_edge + edge_to_center * cos_direction_normal)
+
                 if not ((center_x < 0) or (center_x >= image_length_x) or (center_y < 0) or (center_y >= image_length_y)):
                     possible_triangles[center_y, center_x] += 1
 
@@ -111,19 +82,19 @@ def hough_transfom():
 
     x1 = center_x - edge_length_half
     y1 = center_y - edge_to_center
-
     x2 = center_x + edge_length_half
     y2 = y1
-
     x3 = center_x
     y3 = y1 + edge_height
+    # triangle = np.array([[x1, y1], [x2, y2], [x3, y3]])
+    triangle = np.array([[center_x - 10, center_y - 10], [center_x - 10, center_y + 10], [center_x + 10, center_y + 10], [center_x + 10, center_y - 10]])
 
     plt.subplot(121)
     plt.imshow(image, cmap='gray')
     plt.title('Image')
     plt.xticks([])
     plt.yticks([])
-    plt.gca().add_patch(plt.Polygon([[x1, y1], [x2, y2], [x3, y3]], facecolor="none", edgecolor='blue'))
+    plt.gca().add_patch(plt.Polygon(triangle, facecolor="none", edgecolor='blue'))
 
     plt.subplot(122)
     plt.imshow(possible_triangles, cmap='gray')
@@ -137,10 +108,15 @@ def hough_transfom():
 
 if __name__ == '__main__':
 
-    image = cv2.imread('test_1.jpg', 0)
-    edge_length = 500
+    # image_name = 'test_1.jpg'
+    # edge_length = 180
+    image_name = 'test_2.jpg'
+    edge_length = 180
+
     threshold_1 = 100
     threshold_2 = 200
+
+    image = cv2.imread(image_name, 0)
 
     image_length_x = image.shape[1]
     image_length_y = image.shape[0]
@@ -153,13 +129,12 @@ if __name__ == '__main__':
 
     binary_mask = np.int8(edges / 255)
 
-    dx = signal.convolve2d(image, [[1, -1]], 'same')
-    dy = signal.convolve2d(image, [[1], [-1]], 'same')
+    dx = signal.convolve2d(image, [[-1, 1]], 'same')
+    dy = signal.convolve2d(image, [[-1], [1]], 'same')
 
     gradient = np.sqrt((dx ** 2) + (dy ** 2))
 
     gradient_direction = np.int16(np.arctan2(dy, dx) * 180 / math.pi)
 
     # plot_graphs()
-    # calculate_angles()
     hough_transfom()
