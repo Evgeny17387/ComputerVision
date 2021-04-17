@@ -16,7 +16,7 @@ SIN_30 = math.sin(math.pi / 6)
 TRIANGLE_ANGLES = 120
 
 
-def hough_transfom():
+def hough_transform():
 
     # given the canny image, we do the following:
     # 1. iterate over all points of edge image
@@ -50,7 +50,10 @@ def hough_transfom():
                 if not ((center_x < 0) or (center_x >= image_length_x) or (center_y < 0) or (center_y >= image_length_y)):
                     possible_triangles[center_y, center_x, direction % TRIANGLE_ANGLES] += 1
 
-    center_y, center_x, triangle_angel = np.unravel_index(np.argmax(possible_triangles), possible_triangles.shape)
+    return possible_triangles
+
+
+def get_triangle(center_y, center_x, triangle_angel):
 
     angle_1 = triangle_angel
     angle_2 = triangle_angel + 120
@@ -67,42 +70,55 @@ def hough_transfom():
 
     triangle = np.array([[x1, y1], [x2, y2], [x3, y3]])
 
-    plt.subplot(161)
+    return triangle
+
+
+def run():
+
+    possible_triangles = hough_transform()
+
+    plt.subplot(241)
     plt.imshow(image, cmap='gray')
     plt.title('Image')
     plt.xticks([])
     plt.yticks([])
 
-    plt.subplot(162)
-    plt.imshow(image, cmap='gray')
-    plt.title('Triangle Detection')
-    plt.xticks([])
-    plt.yticks([])
-    plt.gca().add_patch(plt.Polygon(triangle, facecolor="none", edgecolor='blue'))
-
-    plt.subplot(163)
-    plt.imshow(edges, cmap='gray')
+    plt.subplot(242)
+    plt.imshow(canny, cmap='gray')
     plt.title('Edge - Canny')
     plt.xticks([])
     plt.yticks([])
 
-    plt.subplot(164)
+    plt.subplot(243)
     plt.imshow(gradient * binary_mask, cmap='gray')
     plt.title('Gradient')
     plt.xticks([])
     plt.yticks([])
 
-    plt.subplot(165)
+    plt.subplot(244)
     plt.imshow(gradient_direction * binary_mask, cmap='gray')
     plt.title('Gradient Direction')
     plt.xticks([])
     plt.yticks([])
 
-    plt.subplot(166)
-    plt.imshow(possible_triangles[:, :, triangle_angel], cmap='gray')
-    plt.title(f'Hough Transform\nAngle: {triangle_angel}')
+    plt.subplot(245)
+    plt.imshow(image, cmap='gray')
+    plt.title('Triangle Detection')
     plt.xticks([])
     plt.yticks([])
+
+    for center_y in range(possible_triangles.shape[0]):
+        for center_x in range(possible_triangles.shape[1]):
+            for triangle_angel in range(possible_triangles.shape[2]):
+
+                if possible_triangles[center_y, center_x, triangle_angel] >= threshold_vote:
+                    plt.gca().add_patch(plt.Polygon(get_triangle(center_y, center_x, triangle_angel), facecolor="none", edgecolor='blue'))
+
+    # plt.subplot(246)
+    # plt.imshow(possible_triangles[:, :, triangle_angel], cmap='gray')
+    # plt.title(f'Hough Transform\nAngle: {triangle_angel}')
+    # plt.xticks([])
+    # plt.yticks([])
 
     plt.get_current_fig_manager().window.state('zoomed')
     plt.show()
@@ -111,12 +127,24 @@ def hough_transfom():
 if __name__ == '__main__':
 
     # image_name = 'test_1.jpg'
-    image_name = 'test_2.jpg'
+    # image_name = 'test_2.jpg'
     # image_name = 'test_3.jpg'
-    edge_length = 180
+    # edge_length = 180
+    # threshold_1 = 100
+    # threshold_2 = 200
+    # threshold_vote = 100
 
-    threshold_1 = 100
+    # image_name = 'image003.jpg'
+    # edge_length = 100
+    # threshold_1 = 700
+    # threshold_2 = 200
+    # threshold_vote = 5
+
+    image_name = 'image002.jpg'
+    edge_length = 10
+    threshold_1 = 700
     threshold_2 = 200
+    threshold_vote = 3
 
     image = cv2.imread(image_name, 0)
 
@@ -127,9 +155,9 @@ if __name__ == '__main__':
     edge_to_center = SQRT_3_DIV_6 * edge_length
     edge_height = SQRT_3_DIV_2 * edge_length
 
-    edges = cv2.Canny(image, threshold_1, threshold_2)
+    canny = cv2.Canny(image, threshold_1, threshold_2)
 
-    binary_mask = np.int8(edges / 255)
+    binary_mask = np.int8(canny / 255)
 
     dx = signal.convolve2d(image, [[-1, 1]], 'same')
     dy = signal.convolve2d(image, [[-1], [1]], 'same')
@@ -138,4 +166,4 @@ if __name__ == '__main__':
 
     gradient_direction = np.int16(np.arctan2(dy, dx) * 180 / math.pi)
 
-    hough_transfom()
+    run()
