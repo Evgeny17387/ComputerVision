@@ -132,7 +132,7 @@ if __name__ == '__main__':
     edge_length = 180
     threshold_1 = 100
     threshold_2 = 200
-    threshold_vote = 50
+    threshold_vote = 4
 
     # image_name = 'image003.jpg'
     # edge_length = 100
