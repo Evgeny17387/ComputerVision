@@ -126,9 +126,9 @@ def run():
 
 if __name__ == '__main__':
 
-    # image_name = 'test_1.jpg'
+    image_name = 'test_1.jpg'
     # image_name = 'test_2.jpg'
-    image_name = 'test_3.jpg'
+    # image_name = 'test_3.jpg'
     edge_length = 180
     threshold_1 = 100
     threshold_2 = 200

@@ -50,10 +50,10 @@ if __name__ == '__main__':
     image_a_keypoints, image_a_descriptor = sift.detectAndCompute(image_a_gray, None)
     image_b_keypoints, image_b_descriptor = sift.detectAndCompute(image_b_gray, None)
 
+    # Debug Code
     image_a_descriptor = image_a_descriptor[:100, :]
     image_b_descriptor = image_b_descriptor[:100, :]
 
-    # Debug Code
     n = image_a_descriptor.shape[0]
     m = image_b_descriptor.shape[0]
 
