@@ -5,7 +5,5 @@ In order to receive the results for each HW, simply run script.m file
 
 ### HW 1
 #### Hough-Transform
-</br>
-![](HW_1/Q_1/tests/test_3_results.png)
-</br>
-![](HW_1/Q_1/triangles_1/image003_results.jpg)
+Using <b>Hough-Transform</b> and <b>Voting algorithm</b>, we detect equaliteral triangles by voating for the center and the angle of the triangle</br>
+<img src="HW_1/Q_1/tests/test_3_results.png" width="1000">
