@@ -3,6 +3,8 @@ from matplotlib import pyplot as plt
 from scipy import signal
 import numpy as np
 import math
+import time
+
 
 SQRT_3_DIV_6 = math.sqrt(3) / 6
 SQRT_3_DIV_2 = math.sqrt(3) / 2
@@ -73,52 +75,33 @@ def get_triangle(center_y, center_x, triangle_angel):
     return triangle
 
 
-def run():
+def plot_graphs():
 
-    possible_triangles = hough_transform()
-
-    plt.subplot(241)
+    plt.subplot(131)
     plt.imshow(image, cmap='gray')
     plt.title('Image')
     plt.xticks([])
     plt.yticks([])
 
-    plt.subplot(242)
+    plt.subplot(132)
     plt.imshow(canny, cmap='gray')
     plt.title('Edge - Canny')
     plt.xticks([])
     plt.yticks([])
 
-    plt.subplot(243)
-    plt.imshow(gradient * binary_mask, cmap='gray')
-    plt.title('Gradient')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(244)
-    plt.imshow(gradient_direction * binary_mask, cmap='gray')
-    plt.title('Gradient Direction')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(245)
+    plt.subplot(133)
     plt.imshow(image, cmap='gray')
-    plt.title('Triangle Detection')
+    plt.title(f'Triangle Detection\nVotaing Threshold: {threshold_vote}')
     plt.xticks([])
     plt.yticks([])
 
+    time_start = time.time()
     for center_y in range(possible_triangles.shape[0]):
         for center_x in range(possible_triangles.shape[1]):
             for triangle_angel in range(possible_triangles.shape[2]):
-
                 if possible_triangles[center_y, center_x, triangle_angel] >= threshold_vote:
                     plt.gca().add_patch(plt.Polygon(get_triangle(center_y, center_x, triangle_angel), facecolor="none", edgecolor='blue'))
-
-    # plt.subplot(246)
-    # plt.imshow(possible_triangles[:, :, triangle_angel], cmap='gray')
-    # plt.title(f'Hough Transform\nAngle: {triangle_angel}')
-    # plt.xticks([])
-    # plt.yticks([])
+    print(f"hough_transform Run Time: {time.time() - time_start}")
 
     plt.get_current_fig_manager().window.state('zoomed')
     plt.show()
@@ -126,25 +109,37 @@ def run():
 
 if __name__ == '__main__':
 
-    image_name = 'test_1.jpg'
-    # image_name = 'test_2.jpg'
-    # image_name = 'test_3.jpg'
-    edge_length = 180
-    threshold_1 = 100
-    threshold_2 = 200
-    threshold_vote = 4
-
-    # image_name = 'image003.jpg'
-    # edge_length = 100
-    # threshold_1 = 700
+    # image_name = 'tests\\test_1.jpg'
+    # image_name = 'tests\\test_2.jpg'
+    # image_name = 'tests\\test_3.jpg'
+    # edge_length = 180
+    # threshold_1 = 100
     # threshold_2 = 200
-    # threshold_vote = 5
+    # threshold_vote = 16
 
-    # image_name = 'image002.jpg'
+    image_name = 'triangles_1\image003.jpg'
+    edge_length = 100
+    threshold_1 = 700
+    threshold_2 = 200
+    threshold_vote = 5
+
+    # image_name = 'triangles_1\image002.jpg'
     # edge_length = 10
     # threshold_1 = 700
     # threshold_2 = 200
     # threshold_vote = 3
+
+    # image_name = 'triangles_2\image012.jpg'
+    # edge_length = 135
+    # threshold_1 = 300
+    # threshold_2 = 100
+    # threshold_vote = 12
+
+    # image_name = 'triangles_2\image006.jpg'
+    # edge_length = 110
+    # threshold_1 = 100
+    # threshold_2 = 200
+    # threshold_vote = 15
 
     image = cv2.imread(image_name, 0)
 
@@ -166,4 +161,9 @@ if __name__ == '__main__':
 
     gradient_direction = np.int16(np.arctan2(dy, dx) * 180 / math.pi)
 
-    run()
+    time_start = time.time()
+    possible_triangles = hough_transform()
+    print(f"Max Voting: {np.max(possible_triangles)}")
+    print(f"hough_transform Run Time: {time.time() - time_start}")
+
+    plot_graphs()

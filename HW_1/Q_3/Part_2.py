@@ -2,6 +2,7 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 import random
+import time
 
 
 def plot_images():
@@ -46,70 +47,72 @@ def plot_images():
     plt.show()
 
 
-def find_matches():
-
-    n = image_a_descriptor.shape[0]
-    m = image_b_descriptor.shape[0]
-
-    distances = np.zeros((n, m))
-    for i in range(n):
-        for j in range(m):
-            distances[i, j] = sum(abs(image_a_descriptor[i] - image_b_descriptor[j]))
-
-    # Bi Directional Match
-
-    test_1 = False
-    test_2 = False
+def run_matches():
 
     matches = list()
 
-    for i in range(n):
+    if not manual_matches:
 
-        min_distance_1 = 0xFFFFFFFF
-        match_index_1 = -1
+        bf = cv2.BFMatcher()
+        matches = bf.knnMatch(image_a_descriptor, image_b_descriptor, k=1)
 
-        min_distance_2 = 0xFFFFFFFF
-        match_index_2 = -1
+    else:
 
-        for j in range(m):
+        n = image_a_descriptor.shape[0]
+        m = image_b_descriptor.shape[0]
 
-            distance = distances[i, j]
+        distances = np.zeros((n, m))
+        for i in range(n):
+            for j in range(m):
+                distances[i, j] = sum(abs(image_a_descriptor[i] - image_b_descriptor[j]))
 
-            if distance < min_distance_1:
-                min_distance_1 = distance
-                match_index_1 = j
-            elif distance < min_distance_2:
-                min_distance_2 = distance
-                match_index_2 = j
+        for i in range(n):
 
-        if test_1:
+            min_distance_1 = 0xFFFFFFFF
+            match_index_1 = -1
 
-            if min_distance_1 < 0.8 * min_distance_2:
+            min_distance_2 = 0xFFFFFFFF
+            match_index_2 = -1
+
+            for j in range(m):
+
+                distance = distances[i, j]
+
+                if distance < min_distance_1:
+                    min_distance_1 = distance
+                    match_index_1 = j
+                elif distance < min_distance_2:
+                    min_distance_2 = distance
+                    match_index_2 = j
+
+            if test_1:
+
+                if min_distance_1 < 0.8 * min_distance_2:
+                    matches.append([cv2.DMatch(i, match_index_1, 0, min_distance_1)])
+
+            if test_2:
+
+                min_distance_3 = 0xFFFFFFFF
+                match_index_3 = -1
+
+                for k in range(n):
+
+                    distance = distances[k, match_index_1]
+
+                    if distance < min_distance_3:
+                        min_distance_3 = distance
+                        match_index_3 = k
+
+                if match_index_3 == i:
+                    matches.append([cv2.DMatch(i, match_index_1, 0, min_distance_1)])
+
+            else:
                 matches.append([cv2.DMatch(i, match_index_1, 0, min_distance_1)])
-
-        if test_2:
-
-            min_distance_3 = 0xFFFFFFFF
-            match_index_3 = -1
-
-            for k in range(n):
-
-                distance = distances[k, match_index_1]
-
-                if distance < min_distance_3:
-                    min_distance_3 = distance
-                    match_index_3 = k
-
-            if match_index_3 == i:
-                matches.append([cv2.DMatch(i, match_index_1, 0, min_distance_1)])
-
-        else:
-            matches.append([cv2.DMatch(i, match_index_1, 0, min_distance_1)])
 
     return matches
 
 
-def ransac():
+def run_ransac():
 
     image_a_points = np.float32([image_a_keypoints[match[0].queryIdx].pt for match in matches]).reshape(-1, 1, 2)
     image_b_points = np.float32([image_b_keypoints[match[0].trainIdx].pt for match in matches]).reshape(-1, 1, 2)
@@ -117,7 +120,7 @@ def ransac():
     M = np.zeros((3, 3))
     matchesMask = list()
 
-    if not manual_algorithm:
+    if not manual_ransac:
 
         M, mask = cv2.findHomography(image_a_points, image_b_points, cv2.RANSAC, 5.0)
         matchesMask = mask.ravel().tolist()
@@ -151,10 +154,20 @@ def ransac():
 
 if __name__ == '__main__':
 
+    time_start = time.time()
+
     pair = 1
 
-    # manual_algorithm = False
-    manual_algorithm = True
+    # manual_matches = False
+    manual_matches = True
+
+    # test_1 = False
+    test_1 = True
+    # test_2 = False
+    test_2 = True
+
+    manual_ransac = False
+    # manual_ransac = True
 
     image_pair_extension = {
         1: [0, 0],
@@ -174,10 +187,9 @@ if __name__ == '__main__':
     image_a_keypoints, image_a_descriptor = sift.detectAndCompute(image_a, None)
     image_b_keypoints, image_b_descriptor = sift.detectAndCompute(image_b, None)
 
-    bf = cv2.BFMatcher()
-    matches = bf.knnMatch(image_a_descriptor, image_b_descriptor, k=1)
+    matches = run_matches()
 
-    M, matchesMask = ransac()
+    M, matchesMask = run_ransac()
 
     image_a_corners = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
     image_b_corners = cv2.perspectiveTransform(image_a_corners, M)
@@ -197,5 +209,7 @@ if __name__ == '__main__':
                 continue
             if image_f[i, j] == 0:
                 image_f[i, j] = image_b[i, j]
+
+    print(f"Run Time: {time.time() - time_start}")
 
     plot_images()
