@@ -110,18 +110,18 @@ def plot_graphs():
 if __name__ == '__main__':
 
     # image_name = 'tests\\test_1.jpg'
-    image_name = 'tests\\test_2.jpg'
+    # image_name = 'tests\\test_2.jpg'
     # image_name = 'tests\\test_3.jpg'
-    edge_length = 180
-    threshold_1 = 100
-    threshold_2 = 200
-    threshold_vote = 16
-
-    # image_name = 'triangles_1\image003.jpg'
-    # edge_length = 100
-    # threshold_1 = 700
+    # edge_length = 180
+    # threshold_1 = 100
     # threshold_2 = 200
-    # threshold_vote = 5
+    # threshold_vote = 16
+
+    image_name = 'triangles_1\image003.jpg'
+    edge_length = 100
+    threshold_1 = 700
+    threshold_2 = 200
+    threshold_vote = 5
 
     # image_name = 'triangles_1\image002.jpg'
     # edge_length = 10
