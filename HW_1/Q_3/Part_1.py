@@ -5,19 +5,6 @@ import numpy as np
 
 def plot_images():
 
-    plt.subplot(131)
-    plt.imshow(image_source_gray, cmap='gray')
-    plt.title('Image Source')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(132)
-    plt.imshow(image_destination_gray, cmap='gray')
-    plt.title('Image Destination')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(133)
     plt.imshow(image_output_transform, cmap='gray')
     plt.title('Image Output Transform')
     plt.xticks([])
@@ -29,8 +16,8 @@ def plot_images():
 
 if __name__ == '__main__':
 
-    image_filename_source = 'Dylan.jpg'
-    image_filename_destination = 'frames.jpg'
+    image_filename_source = 'Part_1\\Dylan.jpg'
+    image_filename_destination = 'Part_1\\frames.jpg'
 
     image_source = cv2.imread(image_filename_source)
     image_destination = cv2.imread(image_filename_destination)
@@ -52,25 +39,27 @@ if __name__ == '__main__':
     y4_source = image_source_gray.shape[0] - 1
     x4_source = 0
 
-    xy_source = np.array([[x1_source, y1_source], [x2_source, y2_source], [x3_source, y3_source], [x4_source, y4_source]])
-
     # Transform 1
 
-    # xy_destination_transform_1 = plt.ginput(4)
-    xy_destination_transform_1 = np.array([[40, 182], [195, 54], [495, 158], [429, 491]])
+    xy_source_transform_1 = np.float32([[x1_source, y1_source], [x2_source, y2_source], [x3_source, y3_source], [x4_source, y4_source]])
 
-    h_transform_1, _ = cv2.findHomography(xy_source, xy_destination_transform_1)
+    # xy_destination_transform_1 = plt.ginput(4)
+    xy_destination_transform_1 = np.float32([[40, 182], [195, 54], [495, 158], [429, 491]])
+
+    h_transform_1, _ = cv2.findHomography(xy_source_transform_1, xy_destination_transform_1)
 
     image_output_transform_1 = cv2.warpPerspective(image_source_gray, h_transform_1, (image_destination_gray.shape[1], image_destination_gray.shape[0]))
 
     # Transform 2
 
+    xy_source_transform_2 = np.float32([[x1_source, y1_source], [x2_source, y2_source], [x3_source, y3_source]])
+
     # xy_destination_transform_2 = plt.ginput(4)
-    xy_destination_transform_2 = np.array([[551, 222], [840, 69], [899, 295], [603, 446]])
+    xy_destination_transform_2 = np.float32([[551, 222], [840, 69], [899, 295]])
 
-    h_transform_2, _ = cv2.findHomography(xy_source, xy_destination_transform_2)
+    h_transform_2 = cv2.getAffineTransform(xy_source_transform_2, xy_destination_transform_2)
 
-    image_output_transform_2 = cv2.warpPerspective(image_source_gray, h_transform_2, (image_destination_gray.shape[1], image_destination_gray.shape[0]))
+    image_output_transform_2 = cv2.warpAffine(image_source_gray, h_transform_2, (image_destination_gray.shape[1], image_destination_gray.shape[0]))
 
     image_output_transform = image_output_transform_1 + image_output_transform_2
 

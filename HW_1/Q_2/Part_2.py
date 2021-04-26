@@ -1,27 +1,11 @@
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
+import time
+import random
 
 
-def plot_key_points():
-
-    image_a_with_keypoints = image_a.copy()
-    image_b_with_keypoints = image_b.copy()
-
-    cv2.drawKeypoints(image_a_gray, image_a_keypoints, image_a_with_keypoints)
-    cv2.drawKeypoints(image_b_gray, image_b_keypoints, image_b_with_keypoints)
-
-    plt.subplot(121)
-    plt.imshow(image_a_with_keypoints)
-    plt.title('Image A - KP')
-    plt.xticks([])
-    plt.yticks([])
-
-    plt.subplot(122)
-    plt.imshow(image_b_with_keypoints)
-    plt.title('Image B - KP')
-    plt.xticks([])
-    plt.yticks([])
+MATCHES_TO_PLOT = 100
 
 
 def plot_match_image():
@@ -37,8 +21,12 @@ def plot_match_image():
 
 if __name__ == '__main__':
 
-    image_a_filename = 'pair1_imageA.jpg'
-    image_b_filename = 'pair1_imageB.jpg'
+    time_start = time.time()
+
+    pair = 1
+
+    image_a_filename = f'Part_2\\pair{pair}_imageA.jpg'
+    image_b_filename = f'Part_2\\pair{pair}_imageB.jpg'
 
     image_a = cv2.imread(image_a_filename)
     image_b = cv2.imread(image_b_filename)
@@ -50,10 +38,6 @@ if __name__ == '__main__':
     image_a_keypoints, image_a_descriptor = sift.detectAndCompute(image_a_gray, None)
     image_b_keypoints, image_b_descriptor = sift.detectAndCompute(image_b_gray, None)
 
-    # Debug Code
-    image_a_descriptor = image_a_descriptor[:100, :]
-    image_b_descriptor = image_b_descriptor[:100, :]
-
     n = image_a_descriptor.shape[0]
     m = image_b_descriptor.shape[0]
 
@@ -62,9 +46,9 @@ if __name__ == '__main__':
         for j in range(m):
             distances[i, j] = sum(abs(image_a_descriptor[i] - image_b_descriptor[j]))
 
-    # Bi Directional Match
-
-    test_1 = False
+    # test_1 = False
+    test_1 = True
+    # test_2 = False
     test_2 = True
 
     matches = list()
@@ -111,7 +95,12 @@ if __name__ == '__main__':
         else:
             matches.append([cv2.DMatch(i, match_index_1, 0, min_distance_1)])
 
-    image_c = cv2.drawMatchesKnn(image_a, image_a_keypoints, image_b, image_b_keypoints, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    matches_indices = random.sample(range(0, len(matches)), MATCHES_TO_PLOT)
 
-    # plot_key_points()
+    matches_to_plot = [matches[index] for index in matches_indices]
+
+    image_c = cv2.drawMatchesKnn(image_a, image_a_keypoints, image_b, image_b_keypoints, matches_to_plot, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+
+    print(f"Run Time: {time.time() - time_start}")
+
     plot_match_image()

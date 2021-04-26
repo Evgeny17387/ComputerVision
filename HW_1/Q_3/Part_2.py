@@ -21,25 +21,25 @@ def plot_images():
 
     plt.subplot(323)
     plt.imshow(image_c, cmap='gray')
-    plt.title('Image C')
+    plt.title('Before RANSAC')
     plt.xticks([])
     plt.yticks([])
 
     plt.subplot(324)
     plt.imshow(image_d, cmap='gray')
-    plt.title('Image D')
+    plt.title('After RANSAC')
     plt.xticks([])
     plt.yticks([])
 
     plt.subplot(325)
     plt.imshow(image_e, cmap='gray')
-    plt.title('Image E')
+    plt.title('Image A inside Image B')
     plt.xticks([])
     plt.yticks([])
 
     plt.subplot(326)
     plt.imshow(image_f, cmap='gray')
-    plt.title('Image F')
+    plt.title('Warping')
     plt.xticks([])
     plt.yticks([])
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
     time_start = time.time()
 
-    pair = 1
+    pair = 3
 
     # manual_matches = False
     manual_matches = True
@@ -166,8 +166,8 @@ if __name__ == '__main__':
     # test_2 = False
     test_2 = True
 
-    manual_ransac = False
-    # manual_ransac = True
+    # manual_ransac = False
+    manual_ransac = True
 
     image_pair_extension = {
         1: [0, 0],
@@ -175,8 +175,8 @@ if __name__ == '__main__':
         3: [100, 300]
     }
 
-    image_a_filename = f'pair{pair}_imageA.jpg'
-    image_b_filename = f'pair{pair}_imageB.jpg'
+    image_a_filename = f'Part_2\\pair{pair}_imageA.jpg'
+    image_b_filename = f'Part_2\\pair{pair}_imageB.jpg'
 
     image_a = cv2.imread(image_a_filename, 0)
     image_b = cv2.imread(image_b_filename, 0)
