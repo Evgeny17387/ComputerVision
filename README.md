@@ -13,4 +13,4 @@ Detecting many triangles we receive many false-positive detection, which could b
 Using <b>SIFT</b> we can find <b>Keypoints</b> and their <b>Descriptors</b> in images, and find matches between keypoints by descriptors distance using the following tests:</br>
 1. Second closest match test
 2. Dual match test
-<img src="/HW_1/Q_2/Part_1/Results.png" width="1000">
+<img src="/HW_1/Q_2/Part_2/Results.png" width="1000">
